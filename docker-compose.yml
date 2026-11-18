@@ -1,0 +1,20 @@
+services:
+  kiwix:
+    image: ghcr.io/kiwix/kiwix-serve:3.8.2
+    container_name: kiwix
+    restart: unless-stopped
+    # Downloads land in /srv/kiwix/incoming and are moved up only when complete;
+    # a partial ZIM in the served directory would fail to open.
+    command: "*.zim"
+    volumes:
+      - /srv/kiwix:/data:ro
+    networks:
+      - caddy
+    labels:
+      - "caddy=http://wiki.svc.lan"
+      - "caddy.reverse_proxy={{upstreams 8080}}"
+
+networks:
+  caddy:
+    external: true
+    name: caddy
