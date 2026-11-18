@@ -3,9 +3,7 @@ services:
     image: ghcr.io/kiwix/kiwix-serve:3.8.2
     container_name: kiwix
     restart: unless-stopped
-    # Downloads land in /srv/kiwix/incoming and are moved up only when complete;
-    # a partial ZIM in the served directory would fail to open.
-    command: "*.zim"
+    command: "--library /data/library.xml --monitorLibrary"
     volumes:
       - /srv/kiwix:/data:ro
     networks:
@@ -13,6 +11,23 @@ services:
     labels:
       - "caddy=http://wiki.svc.lan"
       - "caddy.reverse_proxy={{upstreams 8080}}"
+
+  kiwix-updater:
+    image: ghcr.io/kiwix/kiwix-tools:3.8.2
+    container_name: kiwix-updater
+    restart: unless-stopped
+    # 10:00 UTC = 02:00/03:00 Pacific on the 1st of Jan/Apr/Jul/Oct.
+    entrypoint:
+      - sh
+      - -c
+      - |
+        echo '0 10 1 1,4,7,10 * /scripts/update-zim.sh > /proc/1/fd/1 2>&1' > /etc/crontabs/root
+        exec crond -f -l 8
+    volumes:
+      # Must be the same mount point as kiwix: library.xml stores absolute ZIM paths.
+      - /srv/kiwix:/data
+      - ./update-zim.sh:/scripts/update-zim.sh:ro
+      - /home/bheussler/.config/resend/email.env:/run/secrets/email.env:ro
 
 networks:
   caddy:
