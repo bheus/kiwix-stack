@@ -3,9 +3,7 @@ updates:
   - package-ecosystem: "docker-compose"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "sunday"
-      timezone: "America/Los_Angeles"
+      interval: "monthly"
     groups:
       kiwix-images:
         patterns:
