@@ -1,0 +1,13 @@
+version: 2
+updates:
+  - package-ecosystem: "docker-compose"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      timezone: "America/Los_Angeles"
+    groups:
+      kiwix-images:
+        patterns:
+          - "ghcr.io/kiwix/kiwix-serve"
+          - "ghcr.io/kiwix/kiwix-tools"
